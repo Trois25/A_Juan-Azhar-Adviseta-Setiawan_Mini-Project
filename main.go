@@ -4,6 +4,7 @@ import (
 	"event_ticket/app/configs"
 	"event_ticket/app/database"
 	"event_ticket/app/migration"
+	"event_ticket/app/router"
 
 	// "event_ticket/app/router"
 	"fmt"
@@ -18,6 +19,6 @@ func main() {
 
 	e := echo.New()
 
-	// router.InitRouter(db, e)
+	router.InitRouter(db, e)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.SERVERPORT)))
 }

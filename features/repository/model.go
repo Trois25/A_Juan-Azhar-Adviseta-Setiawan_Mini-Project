@@ -1,21 +1,23 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
 type Users struct {
-	ID            uuid.UUID `json:"id"`
-	Username      string    `json:"username"`
-	Password      string    `json:"password"`
-	Role_id       uuid.UUID `json:"role_id"`
-	Name          string    `json:"name"`
+	ID            uuid.UUID `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
+	Username      string    `gorm:"varchar(50);not null" json:"username"`
+	Password      string    `gorm:"varchar(50);not null" json:"password"`
+	Role_id       uuid.UUID `gorm:"type:varchar(50);not null" json:"role_id"`
+	Name          string    `gorm:"type:varchar(50);not null" json:"name"`
 	Address       string    `json:"address"`
-	Email         string    `json:"email"`
+	Email         string    `gorm:"varchar(50);not null" json:"email"`
 	Date_of_birth string    `json:"date_of_birth"`
 	Phone_number  uuid.UUID `json:"phone_number"`
-	Created_at    string    `json:"created_at"`
-	Updated_at    string    `json:"update_at"`
+	Created_at    time.Time `json:"created_at"`
+	Updated_at    time.Time `json:"update_at"`
 	Purchase_id   uuid.UUID `json:"purchase_id"`
 }
 
@@ -27,12 +29,13 @@ type Purchase struct {
 	Total_price    float64   `json:"total_price"`
 	Booking_code   string    `json:"booking_code"`
 	Payment_status string    `json:"payment_status"`
+	Created_at     time.Time `json:"created_at"`
 }
 
 type Roles struct {
 	ID         uuid.UUID `json:"id"`
 	Role_name  string    `json:"role_name"`
-	Created_at string    `json:"created_at"`
+	Created_at time.Time `json:"created_at"`
 }
 
 type Events struct {
@@ -42,6 +45,6 @@ type Events struct {
 	Ticket_quantity int       `json:"ticket_quantity"`
 	Price           float64   `json:"price"`
 	Status          string    `json:"status"`
-	Date            string    `json:"date"`
-	Created_at      string    `json:"created_at"`
+	Date            time.Time `json:"date"`
+	Created_at      time.Time `json:"created_at"`
 }
