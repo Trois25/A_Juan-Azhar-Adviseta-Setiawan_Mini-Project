@@ -7,8 +7,8 @@ import (
 )
 
 func InitMigrationMysql(db *gorm.DB) {
-	// db.AutoMigrate(&repository.Users{})
+	db.AutoMigrate(&repository.Users{})
 	db.AutoMigrate(&repository.Roles{})
-	// db.AutoMigrate(&repository.Purchase{})
-	// db.AutoMigrate(&repository.Events{})
+	db.AutoMigrate(&repository.Purchase{})
+	db.AutoMigrate(&repository.Events{})
 }
