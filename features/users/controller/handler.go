@@ -17,23 +17,25 @@ func New(userUC users.UserUseCaseInterface) *UserController {
 	}
 }
 
-func (handler *UserController) Register(c echo.Context) error{
+func (handler *UserController) Register(c echo.Context) error {
 	input := new(UserRequest)
 	errBind := c.Bind(&input)
-	if errBind != nil{
+	if errBind != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error bind data",
 		})
 	}
 
 	data := users.UserCore{
-		Email: input.Email,
-		Name : input.Name,
+		Email:    input.Email,
+		Name:     input.Name,
 		Username: input.Username,
 		Password: input.Password,
+		Date_of_birth: input.Date_of_birth,
+		Role_id:  input.Role_id,
 	}
 
-	row,errusers:= handler.userUsecase.Register(data)
+	row, errusers := handler.userUsecase.Register(data)
 	if errusers != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error create user",
@@ -42,7 +44,7 @@ func (handler *UserController) Register(c echo.Context) error{
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"message": "success insert data",
-		"data" : row,
+		"data":    row,
 	})
 }
 
@@ -57,10 +59,11 @@ func (handler *UserController) Login(c echo.Context) error {
 
 	data := users.UserCore{
 		Email:    input.Email,
+		Username: input.Username,
 		Password: input.Password,
 	}
-	
-	data,token, err := handler.userUsecase.Login(data.Email,data.Username,data.Password)
+
+	data, token, err := handler.userUsecase.Login(data.Email, data.Username, data.Password)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error login",
@@ -69,7 +72,7 @@ func (handler *UserController) Login(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"message": "login success",
-		"email":    data.Email,
-		"token": token,
+		"email":   data.Email,
+		"token":   token,
 	})
 }
