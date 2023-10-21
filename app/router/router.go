@@ -17,4 +17,7 @@ func InitRouter(db *gorm.DB, e *echo.Echo) {
 
 	e.POST("/users", userController.Register)
 	e.POST("/users/login", userController.Login)
+	e.GET("/roles", roleController.ReadAllRole, m.JWTMiddleware())
+	e.POST("/roles", roleController.CreateRole)
+	e.DELETE("/roles/:id", roleController.DeleteRole, m.JWTMiddleware())
 }
