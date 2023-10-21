@@ -10,14 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitRouter(db *gorm.DB, e *echo.Echo) {
+func InitUserRouter(db *gorm.DB, e *echo.Echo) {
 	userRepository := database.New(db)         //menghubungkan data repo ke db
 	userUsecase := usecase.New(userRepository) //data pada usecare berdaarkan repository
 	userController := controller.New(userUsecase)
-
 	e.POST("/users", userController.Register)
 	e.POST("/users/login", userController.Login)
-	e.GET("/roles", roleController.ReadAllRole, m.JWTMiddleware())
-	e.POST("/roles", roleController.CreateRole)
-	e.DELETE("/roles/:id", roleController.DeleteRole, m.JWTMiddleware())
 }

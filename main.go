@@ -19,6 +19,8 @@ func main() {
 
 	e := echo.New()
 
-	router.InitRouter(db, e)
+	router.InitRoleRouter(db, e)
+	router.InitUserRouter(db, e)
+	
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.SERVERPORT)))
 }
