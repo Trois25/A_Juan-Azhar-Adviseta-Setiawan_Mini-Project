@@ -1,7 +1,5 @@
 package controller
 
-import "github.com/google/uuid"
-
 type UserRequest struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`

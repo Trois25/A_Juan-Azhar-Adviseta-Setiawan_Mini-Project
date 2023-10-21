@@ -31,7 +31,6 @@ func (handler *UserController) Register(c echo.Context) error{
 		Name : input.Name,
 		Username: input.Username,
 		Password: input.Password,
-		Role_id: input.Role_id,
 	}
 
 	row,errusers:= handler.userUsecase.Register(data)
@@ -58,7 +57,6 @@ func (handler *UserController) Login(c echo.Context) error {
 
 	data := users.UserCore{
 		Email:    input.Email,
-		Username: input.Username,
 		Password: input.Password,
 	}
 	

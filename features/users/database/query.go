@@ -32,7 +32,6 @@ func (userRep *userRepository) Register(data users.UserCore) (row int, err error
 		Name:     data.Name,
 		Username: data.Username,
 		Password: string(hashPassword),
-		Role_id: data.Role_id,
 	}
 
 	erruser := userRep.db.Save(&input)
@@ -41,35 +40,6 @@ func (userRep *userRepository) Register(data users.UserCore) (row int, err error
 	}
 
 	return 1, nil
-}
-
-// Login implements users.UserDataInterface.
-func (userRep *userRepository) Login(email string, username string, password string) (users.UserCore, string, error) {
-	var data repository.Users
-
-	tx := userRep.db.Where("email = ? OR username = ? AND password = ?", email, username, password).First(&data)
-	if tx.Error != nil {
-		return users.UserCore{}, "", tx.Error
-	}
-
-	var token string
-	if tx.RowsAffected > 0 {
-		var errToken error
-		token, errToken = middlewares.CreateToken(data.ID, data.Email)
-		if errToken != nil {
-			return users.UserCore{}, "", errToken
-		}
-	}
-
-	var check = users.UserCore{
-		ID:         data.ID,
-		Email:      data.Email,
-		Password:   data.Password,
-		Created_at: data.Created_at,
-		Updated_at: data.Updated_at,
-	}
-
-	return check, token, nil
 }
 
 func New(db *gorm.DB) users.UserDataInterface {
