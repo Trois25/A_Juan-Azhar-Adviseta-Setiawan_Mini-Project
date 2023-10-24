@@ -10,7 +10,7 @@ type UserCore struct {
 	ID            uuid.UUID `json:"id"`
 	Username      string    `json:"username"`
 	Password      string    `json:"password"`
-	Role_id       uint64    `json:"role_id"`
+	RoleId        uint64    `json:"role_id"`
 	Name          string    `json:"name"`
 	Address       string    `json:"address"`
 	Email         string    `json:"email"`

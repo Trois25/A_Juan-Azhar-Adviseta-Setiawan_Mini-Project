@@ -27,12 +27,12 @@ func (handler *UserController) Register(c echo.Context) error {
 	}
 
 	data := users.UserCore{
-		Email:    input.Email,
-		Name:     input.Name,
-		Username: input.Username,
-		Password: input.Password,
+		Email:         input.Email,
+		Name:          input.Name,
+		Username:      input.Username,
+		Password:      input.Password,
 		Date_of_birth: input.Date_of_birth,
-		Role_id:  input.Role_id,
+		RoleId:        input.RoleId,
 	}
 
 	row, errusers := handler.userUsecase.Register(data)

@@ -46,9 +46,9 @@ func (roleRepo *roleRepository) DeleteRole(id uint64) (err error) {
 func (roleRepo *roleRepository) ReadAllRole() ([]roles.RoleCore, error) {
 	var dataRoles []repository.Roles
 
-	errData := roleRepo.db.Find(&dataRoles)
+	errData := roleRepo.db.Find(&dataRoles).Error
 	if errData != nil{
-		return nil,errData.Error
+		return nil,errData
 	}
 
 	mapData := make([]roles.RoleCore,len(dataRoles))

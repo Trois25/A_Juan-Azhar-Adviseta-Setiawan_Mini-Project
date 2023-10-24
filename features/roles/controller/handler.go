@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"event_ticket/app/middlewares"
+	// "event_ticket/app/middlewares"
+	// "event_ticket/app/middlewares"
 	"event_ticket/features/roles"
 	"net/http"
 	"strconv"
@@ -32,8 +33,8 @@ func (handler *roleController) CreateRole(c echo.Context) error {
 		Role_name: input.Role_name,
 	}
 
-	errusers := handler.roleUsecase.CreateRole(data)
-	if errusers != nil {
+	errrole := handler.roleUsecase.CreateRole(data)
+	if errrole != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error insert data",
 		})
@@ -46,18 +47,18 @@ func (handler *roleController) CreateRole(c echo.Context) error {
 
 func (handler *roleController) ReadAllRole(c echo.Context) error {
 
-	role, userId := middlewares.ExtractTokenUserId(c)
-	if userId == "" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "error get userId",
-		})
-	}
+	// role, userId := middlewares.ExtractTokenUserId(c)
+	// if userId == "" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "error get userId",
+	// 	})
+	// }
 
-	if role != "admin" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "access denied",
-		})
-	}
+	// if role != "admin" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "access denied",
+	// 	})
+	// }
 
 	data, err := handler.roleUsecase.ReadAllRole()
 	if err != nil {
@@ -74,12 +75,12 @@ func (handler *roleController) ReadAllRole(c echo.Context) error {
 
 func (handler *roleController) DeleteRole(c echo.Context) error {
 
-	role, userId := middlewares.ExtractTokenUserId(c)
-	if userId == "" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "error get userId",
-		})
-	}
+	// _, userId := middlewares.ExtractTokenUserId(c)
+	// if userId == "" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "error get userId",
+	// 	})
+	// }
 
 	idParams := c.Param("id")
 	if idParams == "" {
@@ -88,7 +89,7 @@ func (handler *roleController) DeleteRole(c echo.Context) error {
 		})
 	}
 
-	if userId == idParams || role == "admin" {
+	// if userId == idParams{
 		number, _ := strconv.ParseUint(string(idParams), 10, 64)
 		err := handler.roleUsecase.DeleteRole(number)
 		if err != nil {
@@ -100,10 +101,10 @@ func (handler *roleController) DeleteRole(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]any{
 			"message": "success delete data",
 		})
-	} else {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "access denied",
-		})
-	}
+	// } else {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "access denied",
+	// 	})
+	// }
 
 }
