@@ -27,12 +27,13 @@ func (userRep *userRepository) Register(data users.UserCore) (row int, err error
 	}
 
 	var input = repository.Users{
-		ID:       newUUID,
-		Email:    data.Email,
-		Name:     data.Name,
+		ID:            newUUID,
+		Email:         data.Email,
+		Name:          data.Name,
 		Date_of_birth: data.Date_of_birth,
-		Username: data.Username,
-		Password: string(hashPassword),
+		Username:      data.Username,
+		Password:      string(hashPassword),
+		RoleId:        data.RoleId,
 	}
 
 	erruser := userRep.db.Save(&input)
@@ -65,7 +66,7 @@ func (userRep *userRepository) Login(email string, username string, password str
 		ID:       data.ID,
 		Email:    data.Email,
 		Password: data.Password,
-		Role_id:  data.Role_id,
+		RoleId:   data.RoleId,
 	}
 
 	return check, token, nil
