@@ -23,12 +23,12 @@ type Users struct {
 }
 
 type Purchase struct {
-	ID             string    `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
+	ID             uuid.UUID    `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
 	EventId        uuid.UUID `gorm:"type:varchar(50);not null" json:"event_id"`
 	UserId         uuid.UUID `gorm:"type:varchar(50);not null" json:"user_id"`
 	Quantity       int       `json:"quantity"`
 	Total_price    float64   `json:"total_price"`
-	Booking_code   string    `json:"booking_code"`
+	Booking_code   uuid.UUID    `json:"booking_code"`
 	Payment_status string    `json:"payment_status"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"update_at"`

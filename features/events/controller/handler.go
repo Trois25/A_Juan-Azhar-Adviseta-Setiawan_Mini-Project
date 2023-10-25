@@ -3,7 +3,6 @@ package controller
 import (
 	// "event_ticket/app/middlewares"
 	"event_ticket/features/events"
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -82,7 +81,7 @@ func (handler *eventController) ReadSpecificEvent(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"message": "get all event",
+		"message": "get event",
 		"data":    data,
 	})
 }
@@ -96,15 +95,13 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 	// }
 
 	idParams := c.Param("id")
-	
-	fmt.Println("params :" ,idParams)
+
 	data := new(EventRequest)
 	if errBind := c.Bind(data); errBind != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "Error binding data",
 		})
 	}
-	fmt.Println("data :",data)
 
 	eventData := events.EventsCore{
 		ID:              idParams,
@@ -117,16 +114,16 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 	}
 
 	updatedEvent, err := handler.eventUsecase.UpdateEvent(idParams, eventData)
-    if err != nil {
-        return c.JSON(http.StatusBadRequest, map[string]interface{}{
-            "message": "Error updating event",
-        })
-    }
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error updating event",
+		})
+	}
 
-    return c.JSON(http.StatusOK, map[string]interface{}{
-        "message": "Event updated successfully",
-        "data": updatedEvent, // Anda dapat mengirim data yang telah diperbarui sebagai respons.
-    })
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Event updated successfully",
+		"data":    updatedEvent,
+	})
 
 }
 

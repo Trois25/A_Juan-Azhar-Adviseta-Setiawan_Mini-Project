@@ -18,7 +18,7 @@ type UserCore struct {
 	Phone_number  uuid.UUID `json:"phone_number"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"update_at"`
-	Purchase_id   uuid.UUID `json:"purchase_id"`
+	PurchaseId    uuid.UUID `json:"purchase_id"`
 	Token         string    `json:"token"`
 }
 

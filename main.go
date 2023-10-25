@@ -22,6 +22,7 @@ func main() {
 	router.InitRoleRouter(db, e)
 	router.InitUserRouter(db, e)
 	router.InitEventRouter(db, e)
+	router.InitPurchaseRouter(db, e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.SERVERPORT)))
 }
