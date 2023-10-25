@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"event_ticket/app/middlewares"
 	"event_ticket/features/purchase"
 	"fmt"
 	"net/http"
@@ -86,13 +87,6 @@ func (handler *purchaseController) ReadAllPurchase(c echo.Context) error {
 func (handler *purchaseController) ReadSpecificPurchase(c echo.Context) error {
 	idParamstr := c.Param("id")
 
-	// idParams, err := uuid.Parse(idParamstr)
-	// if err != nil {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "failed parse UUID",
-	// 	})
-	// }
-
 	data, err := handler.purchaseUsecase.ReadSpecificPurchase(idParamstr)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -107,6 +101,26 @@ func (handler *purchaseController) ReadSpecificPurchase(c echo.Context) error {
 }
 
 func (handler *purchaseController) UpdatePurchase(c echo.Context) error {
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+
+	
 	idParams := c.Param("id")
 
 	data := new(PurchaseRequest)

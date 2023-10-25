@@ -2,6 +2,7 @@ package controller
 
 import (
 	// "event_ticket/app/middlewares"
+	"event_ticket/app/middlewares"
 	"event_ticket/features/events"
 	"net/http"
 
@@ -20,6 +21,26 @@ func New(eventUC events.EventsUseCaseInterface) *eventController {
 }
 
 func (handler *eventController) PostEvent(c echo.Context) error {
+
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+
 	input := new(EventRequest)
 	errBind := c.Bind(&input)
 	if errBind != nil {
@@ -87,12 +108,25 @@ func (handler *eventController) ReadSpecificEvent(c echo.Context) error {
 }
 
 func (handler *eventController) UpdateEvent(c echo.Context) error {
-	// role, _ := middlewares.ExtractTokenUserId(c)
-	// if role != "admin" {
-	// 	return c.JSON(http.StatusForbidden, map[string]interface{}{
-	// 		"message": "Access denied. Only admins can update events.",
-	// 	})
-	// }
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+
 
 	idParams := c.Param("id")
 
@@ -128,12 +162,24 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 }
 
 func (handler *eventController) DeleteEvent(c echo.Context) error {
-	// role, _ := middlewares.ExtractTokenUserId(c)
-	// if role != "admin" {
-	// 	return c.JSON(http.StatusForbidden, map[string]interface{}{
-	// 		"message": "Access denied. Only admins can delete events.",
-	// 	})
-	// }
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
 
 	idParams := c.Param("id")
 	err := handler.eventUsecase.DeleteEvent(idParams)

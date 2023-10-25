@@ -54,9 +54,17 @@ func (userRep *userRepository) Login(email string, username string, password str
 	}
 
 	var token string
+	var roleName string
+
 	if tx.RowsAffected > 0 {
+		var roleData repository.Roles
+		if err := userRep.db.Where("ID = ?", data.RoleId).First(&roleData).Error; err != nil {
+            return users.UserCore{}, "", err
+        }
+		roleName = roleData.Role_name
+
 		var errToken error
-		token, errToken = middlewares.CreateToken(data.ID, data.Email)
+		token, errToken = middlewares.CreateToken(data.ID, roleName)
 		if errToken != nil {
 			return users.UserCore{}, "", errToken
 		}

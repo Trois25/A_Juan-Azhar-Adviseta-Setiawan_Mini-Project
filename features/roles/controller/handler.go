@@ -3,6 +3,7 @@ package controller
 import (
 	// "event_ticket/app/middlewares"
 	// "event_ticket/app/middlewares"
+	"event_ticket/app/middlewares"
 	"event_ticket/features/roles"
 	"net/http"
 	"strconv"
@@ -21,6 +22,25 @@ func New(roleUC roles.RoleUseCaseInterface) *roleController {
 }
 
 func (handler *roleController) CreateRole(c echo.Context) error {
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+	
 	input := new(RoleRequest)
 	errBind := c.Bind(&input)
 	if errBind != nil {
@@ -47,19 +67,6 @@ func (handler *roleController) CreateRole(c echo.Context) error {
 
 func (handler *roleController) ReadAllRole(c echo.Context) error {
 
-	// role, userId := middlewares.ExtractTokenUserId(c)
-	// if userId == "" {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "error get userId",
-	// 	})
-	// }
-
-	// if role != "admin" {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "access denied",
-	// 	})
-	// }
-
 	data, err := handler.roleUsecase.ReadAllRole()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -75,12 +82,24 @@ func (handler *roleController) ReadAllRole(c echo.Context) error {
 
 func (handler *roleController) DeleteRole(c echo.Context) error {
 
-	// _, userId := middlewares.ExtractTokenUserId(c)
-	// if userId == "" {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "error get userId",
-	// 	})
-	// }
+	userId,role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
 
 	idParams := c.Param("id")
 	if idParams == "" {
