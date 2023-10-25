@@ -10,7 +10,7 @@ type Users struct {
 	ID            uuid.UUID `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
 	Username      string    `gorm:"varchar(50);not null" json:"username"`
 	Password      string    `gorm:"varchar(50);not null" json:"password"`
-	RoleId        uint64    `gorm:"not null" json:"role_id"`
+	RoleId        uint64    `gorm:"default:2;not null" json:"role_id"`
 	Name          string    `gorm:"type:varchar(50);not null" json:"name"`
 	Address       string    `json:"address"`
 	Email         string    `gorm:"varchar(50);not null" json:"email"`
@@ -23,13 +23,13 @@ type Users struct {
 }
 
 type Purchase struct {
-	ID             uuid.UUID    `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
+	ID             uuid.UUID `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
 	EventId        uuid.UUID `gorm:"type:varchar(50);not null" json:"event_id"`
 	UserId         uuid.UUID `gorm:"type:varchar(50);not null" json:"user_id"`
 	Quantity       int       `json:"quantity"`
 	Total_price    float64   `json:"total_price"`
-	Booking_code   uuid.UUID    `json:"booking_code"`
-	Payment_status string    `json:"payment_status"`
+	Booking_code   uuid.UUID `json:"booking_code"`
+	Payment_status string    `gorm:"default:'pending'" json:"payment_status"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"update_at"`
 	Event          Events
