@@ -120,7 +120,6 @@ func (handler *purchaseController) UpdatePurchase(c echo.Context) error {
 		})
 	}
 
-	
 	idParams := c.Param("id")
 
 	data := new(PurchaseRequest)
@@ -145,6 +144,34 @@ func (handler *purchaseController) UpdatePurchase(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Payment Status updated",
+	})
+}
+
+func (handler *purchaseController) UploadProof(c echo.Context) error {	
+	idParams := c.Param("id")
+
+	data := new(PurchaseRequest)
+	if errBind := c.Bind(data); errBind != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error binding data",
+		})
+	}
+
+	purchaseData := purchase.PurchaseCore{
+		ID:             idParams,
+		Proof_image : data.Proof_image,
+	}
+
+	_, err := handler.purchaseUsecase.UpdatePurchase(idParams, purchaseData)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error updating event",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Proof of Payment uploaded",
 	})
 }
 

@@ -1,6 +1,7 @@
 package purchase
 
 import (
+	"mime/multipart"
 	"time"
 )
 
@@ -11,6 +12,7 @@ type PurchaseCore struct {
 	Quantity       int       `json:"quantity"`
 	Total_price    float64   `json:"total_price"`
 	Booking_code   string    `json:"booking_code"`
+	Proof_image    string    `json:"proof_image"`
 	Payment_status string    `json:"payment_status"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"update_at"`
@@ -22,6 +24,7 @@ type PurchaseDataInterface interface {
 	ReadAllPurchase() ([]PurchaseCore, error)
 	ReadSpecificPurchase(id string) (purchases PurchaseCore, err error)
 	UpdatePurchase(id string, data PurchaseCore) (purchases PurchaseCore, err error)
+	UploadProof(id string, data PurchaseCore, image *multipart.FileHeader) (purchases PurchaseCore, err error)
 	DeletePurchase(id string) (err error)
 }
 
@@ -30,5 +33,6 @@ type PurchaseUseCaseInterface interface {
 	ReadAllPurchase() ([]PurchaseCore, error)
 	ReadSpecificPurchase(id string) (purchases PurchaseCore, err error)
 	UpdatePurchase(id string, data PurchaseCore) (purchases PurchaseCore, err error)
+	UploadProof(id string, data PurchaseCore, image *multipart.FileHeader) (purchases PurchaseCore, err error)
 	DeletePurchase(id string) (err error)
 }

@@ -29,6 +29,7 @@ type Purchase struct {
 	Quantity       int       `json:"quantity"`
 	Total_price    float64   `json:"total_price"`
 	Booking_code   uuid.UUID `json:"booking_code"`
+	Proof_image    string    `json:"proof_image"`
 	Payment_status string    `gorm:"default:'pending'" json:"payment_status"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"update_at"`

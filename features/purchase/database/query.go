@@ -4,7 +4,9 @@ import (
 	"errors"
 	"event_ticket/features/purchase"
 	"event_ticket/features/repository"
+	"event_ticket/features/storage"
 	"fmt"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -12,6 +14,72 @@ import (
 
 type purchaseRepository struct {
 	db *gorm.DB
+}
+
+// UploadProof implements purchase.PurchaseDataInterface.
+func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.PurchaseCore, image *multipart.FileHeader) (purchases purchase.PurchaseCore, err error) {
+	var purchaseData repository.Purchase
+	errData := purchaseRepo.db.Where("id = ?", id).First(&purchaseData).Error
+	if errData != nil {
+		if errors.Is(errData, gorm.ErrRecordNotFound) {
+			return purchase.PurchaseCore{}, errors.New("purchase data not found")
+		}
+		return purchase.PurchaseCore{}, errData
+	}
+
+	// Pastikan UserId yang sesuai dengan referensi ke pengguna ada
+	var user repository.Users
+	errUser := purchaseRepo.db.Where("id = ?", purchaseData.UserId).First(&user).Error
+	if errUser != nil {
+		return purchase.PurchaseCore{}, errors.New("associated user not found")
+	}
+
+	uuidID, err := uuid.Parse(id)
+	if err != nil {
+		return purchase.PurchaseCore{}, err
+	}
+
+	imageURL, uploadErr := storage.UploadProofOfPayment(image)
+	if uploadErr != nil {
+		return purchase.PurchaseCore{}, uploadErr
+	}
+
+	purchaseData.ID = uuidID
+	purchaseData.Proof_image = imageURL
+	purchaseData.UpdatedAt = data.UpdatedAt
+
+	var update = repository.Purchase{
+		ID:             purchaseData.ID,
+		Payment_status: purchaseData.Payment_status,
+		UserId:         purchaseData.UserId,
+		EventId:        purchaseData.EventId,
+		Quantity:       purchaseData.Quantity,
+		Total_price:    purchaseData.Total_price,
+		Booking_code:   purchaseData.Booking_code,
+		Proof_image:    purchaseData.Proof_image,
+		CreatedAt:      purchaseData.CreatedAt,
+		UpdatedAt:      purchaseData.UpdatedAt,
+	}
+
+	errSave := purchaseRepo.db.Save(&update)
+	if errSave != nil {
+		return purchase.PurchaseCore{}, errSave.Error
+	}
+
+	purchaseCore := purchase.PurchaseCore{
+		ID:             purchaseData.ID.String(),
+		UserId:         purchaseData.UserId.String(),
+		EventId:        purchaseData.EventId.String(),
+		Payment_status: purchaseData.Payment_status,
+		Quantity:       purchaseData.Quantity,
+		Total_price:    purchaseData.Total_price,
+		Booking_code:   purchaseData.Booking_code.String(),
+		Proof_image:    purchaseData.Proof_image,
+		CreatedAt:      purchaseData.CreatedAt,
+		UpdatedAt:      purchaseData.UpdatedAt,
+	}
+
+	return purchaseCore, nil
 }
 
 // ReadSpecificPurchase implements purchase.PurchaseDataInterface.

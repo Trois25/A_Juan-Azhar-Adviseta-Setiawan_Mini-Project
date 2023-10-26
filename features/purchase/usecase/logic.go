@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"event_ticket/features/purchase"
+	"mime/multipart"
 )
 
 type purchaseUsecase struct {
@@ -69,26 +70,10 @@ func (purchaseUC *purchaseUsecase) ReadSpecificPurchase(id string) (purchases pu
 
 // UpdatePurchase implements purchase.PurchaseUseCaseInterface.
 func (purchaseUC *purchaseUsecase) UpdatePurchase(id string, data purchase.PurchaseCore) (purchases purchase.PurchaseCore, err error) {
-	// if id == "" {
-	// 	return purchase.PurchaseCore{}, errors.New("error, Purchase ID is required")
-	// }
-
-	// if data.Payment_status == ""{
-	// 	return purchase.PurchaseCore{}, errors.New("error, payment status is required")
-	// }
-
-	// updatedPurchase, err := purchaseUC.purchaseRepository.UpdatePurchase(id,data)
-    // if err != nil {
-    //     return purchase.PurchaseCore{}, err
-    // }
-
-	// return updatedPurchase, nil
-
 	if id == "" {
 		return purchase.PurchaseCore{}, errors.New("error, Purchase ID is required")
 	}
 
-	// Membuat objek PurchaseCore baru hanya dengan Payment_status yang diisi
 	paymentStatusData := purchase.PurchaseCore{
 		Payment_status: data.Payment_status,
 	}
@@ -99,6 +84,24 @@ func (purchaseUC *purchaseUsecase) UpdatePurchase(id string, data purchase.Purch
 	}
 
 	return updatedPurchase, nil
+}
+
+// UploadProof implements purchase.PurchaseUseCaseInterface.
+func (purchaseUC *purchaseUsecase) UploadProof(id string, data purchase.PurchaseCore, image *multipart.FileHeader) (purchases purchase.PurchaseCore, err error) {
+	if id == "" {
+		return purchase.PurchaseCore{}, errors.New("error, Purchase ID is required")
+	}
+
+	paymentStatusData := purchase.PurchaseCore{
+		Proof_image : data.Proof_image,
+	}
+
+	uploadProof, err := purchaseUC.purchaseRepository.UpdatePurchase(id, paymentStatusData)
+	if err != nil {
+		return purchase.PurchaseCore{}, err
+	}
+
+	return uploadProof, nil
 }
 
 func New(Purchaseuc purchase.PurchaseDataInterface) purchase.PurchaseUseCaseInterface {
