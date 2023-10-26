@@ -2,8 +2,10 @@ package controller
 
 import (
 	"event_ticket/features/users"
+	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -74,5 +76,92 @@ func (handler *UserController) Login(c echo.Context) error {
 		"message": "login success",
 		"email":   data.Email,
 		"token":   token,
+	})
+}
+
+func (handler *UserController) ReadAllUser(c echo.Context) error {
+	data, err := handler.userUsecase.ReadAllUser()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get all user",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "get all user",
+		"data":    data,
+	})
+}
+
+func (handler *UserController) ReadSpecificUser(c echo.Context) error {
+	idParamstr := c.Param("id")
+
+	idParams, err := uuid.Parse(idParamstr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "failed parse UUID",
+		})
+	}
+
+	data, err := handler.userUsecase.ReadSpecificUser(idParams.String())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get specific user",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "get user",
+		"data":    data,
+	})
+
+}
+
+func (handler *UserController) UpdateUser(c echo.Context) error {
+	idParams := c.Param("id")
+
+	data := new(UserRequest)
+	if errBind := c.Bind(data); errBind != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error binding data",
+		})
+	}
+
+	userData := users.UserCore{
+		ID:            idParams,
+		Name:          data.Name,
+		Username:      data.Username,
+		Date_of_birth: data.Date_of_birth,
+		Address:       data.Address,
+		Phone_number:  data.Phone_number,
+	}
+
+	fmt.Println("user data handler : ", userData)
+
+	updatedEvent, err := handler.userUsecase.UpdateUser(idParams, userData)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error updating user",
+			"error" : err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "user updated successfully",
+		"data":    updatedEvent,
+	})
+}
+
+func (handler *UserController) DeleteUser(c echo.Context) error {
+	idParams := c.Param("id")
+	err := handler.userUsecase.DeleteUser(idParams)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error deleting user",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "User deleted successfully",
 	})
 }

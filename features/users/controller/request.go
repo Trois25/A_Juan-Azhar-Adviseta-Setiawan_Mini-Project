@@ -7,4 +7,6 @@ type UserRequest struct {
 	Password      string `json:"password"`
 	Date_of_birth string `json:"date_of_birth"`
 	RoleId        uint64 `json:"role_id"`
+	Address       string `json:"address"`
+	Phone_number  string `json:"phone_number"`
 }

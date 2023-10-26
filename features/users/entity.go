@@ -7,7 +7,7 @@ import (
 )
 
 type UserCore struct {
-	ID            uuid.UUID `json:"id"`
+	ID            string `json:"id"`
 	Username      string    `json:"username"`
 	Password      string    `json:"password"`
 	RoleId        uint64    `json:"role_id"`
@@ -15,7 +15,7 @@ type UserCore struct {
 	Address       string    `json:"address"`
 	Email         string    `json:"email"`
 	Date_of_birth string    `json:"date_of_birth"`
-	Phone_number  uuid.UUID `json:"phone_number"`
+	Phone_number  string    `json:"phone_number"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"update_at"`
 	PurchaseId    uuid.UUID `json:"purchase_id"`
@@ -25,10 +25,17 @@ type UserCore struct {
 type UserDataInterface interface {
 	Register(data UserCore) (row int, err error)
 	Login(email, username, password string) (UserCore, string, error)
-	// GetData(ID uuid.UUID) (UserCore, error)
+	ReadAllUser() ([]UserCore, error)
+	ReadSpecificUser(id string) (user UserCore, err error)
+	UpdateUser(id string, data UserCore) (user UserCore, err error)
+	DeleteUser(id string) (err error)
 }
 
 type UserUseCaseInterface interface {
 	Register(data UserCore) (row int, err error)
 	Login(email, username, password string) (UserCore, string, error)
+	ReadAllUser() ([]UserCore, error)
+	ReadSpecificUser(id string) (user UserCore, err error)
+	UpdateUser(id string, data UserCore) (user UserCore, err error)
+	DeleteUser(id string) (err error)
 }

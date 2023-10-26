@@ -22,20 +22,20 @@ func New(eventUC events.EventsUseCaseInterface) *eventController {
 
 func (handler *eventController) PostEvent(c echo.Context) error {
 
-	userId,role := middlewares.ExtractTokenUserId(c)
+	userId, role := middlewares.ExtractTokenUserId(c)
 
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get userId",
 		})
 	}
-	if role  == ""{
+	if role == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get role",
 		})
 	}
 
-	if role != "admin"{
+	if role != "admin" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "access denied",
 		})
@@ -108,25 +108,25 @@ func (handler *eventController) ReadSpecificEvent(c echo.Context) error {
 }
 
 func (handler *eventController) UpdateEvent(c echo.Context) error {
-	userId,role := middlewares.ExtractTokenUserId(c)
+	userId, role := middlewares.ExtractTokenUserId(c)
 
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get userId",
 		})
 	}
-	if role  == ""{
+
+	if role == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get role",
 		})
 	}
 
-	if role != "admin"{
+	if role != "admin" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "access denied",
 		})
 	}
-
 
 	idParams := c.Param("id")
 
@@ -162,20 +162,20 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 }
 
 func (handler *eventController) DeleteEvent(c echo.Context) error {
-	userId,role := middlewares.ExtractTokenUserId(c)
+	userId, role := middlewares.ExtractTokenUserId(c)
 
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get userId",
 		})
 	}
-	if role  == ""{
+	if role == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get role",
 		})
 	}
 
-	if role != "admin"{
+	if role != "admin" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "access denied",
 		})
