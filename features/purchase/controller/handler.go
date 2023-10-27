@@ -101,20 +101,20 @@ func (handler *purchaseController) ReadSpecificPurchase(c echo.Context) error {
 }
 
 func (handler *purchaseController) UpdatePurchase(c echo.Context) error {
-	userId,role := middlewares.ExtractTokenUserId(c)
+	userId, role := middlewares.ExtractTokenUserId(c)
 
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get userId",
 		})
 	}
-	if role  == ""{
+	if role == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get role",
 		})
 	}
 
-	if role != "admin"{
+	if role != "admin" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "access denied",
 		})
@@ -147,7 +147,7 @@ func (handler *purchaseController) UpdatePurchase(c echo.Context) error {
 	})
 }
 
-func (handler *purchaseController) UploadProof(c echo.Context) error {	
+func (handler *purchaseController) UploadProof(c echo.Context) error {
 	idParams := c.Param("id")
 
 	data := new(PurchaseRequest)
@@ -157,15 +157,27 @@ func (handler *purchaseController) UploadProof(c echo.Context) error {
 		})
 	}
 
-	purchaseData := purchase.PurchaseCore{
-		ID:             idParams,
-		Proof_image : data.Proof_image,
+	image, err := c.FormFile("proof_image") // Pastikan ini sesuai dengan nama field file di form
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "No file uploaded",
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error uploading file",
+		})
 	}
 
-	_, err := handler.purchaseUsecase.UpdatePurchase(idParams, purchaseData)
+	purchaseData := purchase.PurchaseCore{
+		ID:          idParams,
+		Proof_image: data.Proof_image,
+	}
+
+	_, err = handler.purchaseUsecase.UploadProof(idParams, purchaseData, image)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"message": "Error updating event",
+			"message": "Error uploading proof of payment",
 			"error":   err.Error(),
 		})
 	}

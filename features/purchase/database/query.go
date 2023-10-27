@@ -44,6 +44,10 @@ func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.Pur
 		return purchase.PurchaseCore{}, uploadErr
 	}
 
+	if uploadErr != nil {
+		return purchase.PurchaseCore{}, uploadErr
+	}
+
 	purchaseData.ID = uuidID
 	purchaseData.Proof_image = imageURL
 	purchaseData.UpdatedAt = data.UpdatedAt
@@ -228,6 +232,10 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 	purchaseData.Payment_status = data.Payment_status
 	purchaseData.UpdatedAt = data.UpdatedAt
 
+	if data.Proof_image != "" {
+		purchaseData.Proof_image = data.Proof_image
+	}
+
 	var update = repository.Purchase{
 		ID:             purchaseData.ID,
 		Payment_status: purchaseData.Payment_status,
@@ -236,6 +244,7 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 		Quantity:       purchaseData.Quantity,
 		Total_price:    purchaseData.Total_price,
 		Booking_code:   purchaseData.Booking_code,
+		Proof_image:    purchaseData.Proof_image,
 		CreatedAt:      purchaseData.CreatedAt,
 		UpdatedAt:      purchaseData.UpdatedAt,
 	}
@@ -253,6 +262,7 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 		Quantity:       purchaseData.Quantity,
 		Total_price:    purchaseData.Total_price,
 		Booking_code:   purchaseData.Booking_code.String(),
+		Proof_image:    purchaseData.Proof_image,
 		CreatedAt:      purchaseData.CreatedAt,
 		UpdatedAt:      purchaseData.UpdatedAt,
 	}

@@ -30,7 +30,6 @@ func UploadProofOfPayment(image *multipart.FileHeader) (string, error) {
 	}
 	defer client.Close()
 
-
 	bucketName := "proof-of-payment"
 	imagePath := "proof-file/" + uuid.New().String() + ".jpg"
 
