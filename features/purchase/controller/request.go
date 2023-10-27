@@ -5,4 +5,5 @@ type PurchaseRequest struct {
 	UserId         string `json:"user_id"`
 	Quantity       int    `json:"quantity"`
 	Payment_status string `json:"payment_status"`
+	Proof_image    string `json:"proof_image"`
 }

@@ -19,5 +19,6 @@ func InitPurchaseRouter(db *gorm.DB, e *echo.Echo) {
 	e.GET("/purchase/:id", purchaseController.ReadSpecificPurchase, m.JWTMiddleware())
 	e.POST("/purchase", purchaseController.CreatePurchase, m.JWTMiddleware())
 	e.PUT("/purchase/:id", purchaseController.UpdatePurchase, m.JWTMiddleware())
+	e.PUT("/purchase/proof/:id", purchaseController.UploadProof, m.JWTMiddleware())
 	e.DELETE("/purchase/:id", purchaseController.DeletePurchase, m.JWTMiddleware())
 }
