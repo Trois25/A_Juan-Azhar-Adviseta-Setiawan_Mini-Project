@@ -11,7 +11,7 @@ type roleUsecase struct {
 
 // CreateRole implements roles.RoleUseCaseInterface.
 func (roleUC *roleUsecase) CreateRole(data roles.RoleCore) (err error) {
-	if data.Role_name == " "{
+	if data.Role_name == ""{
 		return errors.New("role name can't be empty")
 	}
 

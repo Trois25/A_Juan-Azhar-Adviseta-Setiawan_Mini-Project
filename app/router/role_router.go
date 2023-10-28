@@ -16,6 +16,6 @@ func InitRoleRouter(db *gorm.DB, e *echo.Echo) {
 	roleController := controller.New(roleUsecase)
 
 	e.GET("/roles", roleController.ReadAllRole, m.JWTMiddleware())
-	e.POST("/roles", roleController.CreateRole)
+	e.POST("/roles", roleController.CreateRole, m.JWTMiddleware())
 	e.DELETE("/roles/:id", roleController.DeleteRole, m.JWTMiddleware())
 }
