@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"event_ticket/features/events"
+	"mime/multipart"
 	"time"
 )
 
@@ -45,12 +46,12 @@ func (eventUC *eventUsecase) DeleteEvent(id string) (err error) {
 }
 
 // PostEvent implements events.EventsUseCaseInterface.
-func (eventUC *eventUsecase) PostEvent(data events.EventsCore) (row int, err error) {
+func (eventUC *eventUsecase) PostEvent(data events.EventsCore, image *multipart.FileHeader) (row int, err error) {
 	if data.Title == "" || data.Body == "" || data.Place == "" {
 		return 0, errors.New("error, Title, Body and place can't be empty")
 	}
 
-	if data.Price < 0 || data.Ticket_quantity < 0 {
+	if data.Price <= 0 || data.Ticket_quantity <= 0 {
 		return 0, errors.New("error, Ticket and Price must be a positive integer")
 	}
 
@@ -58,7 +59,14 @@ func (eventUC *eventUsecase) PostEvent(data events.EventsCore) (row int, err err
 		return 0, errors.New("error, Date must be in the format 'yyyy-mm-dd'")
 	}
 
-	errevents, _ := eventUC.eventRepository.PostEvent(data)
+	if image != nil && image.Size > 10*1024*1024 {
+        return 0, errors.New("image file size should be less than 10 MB")
+    }
+
+	errevents, errPost := eventUC.eventRepository.PostEvent(data, image)
+	if errPost != nil {
+		return 0, errPost
+	}
 	return errevents, nil
 }
 
@@ -73,7 +81,7 @@ func (eventUC *eventUsecase) ReadAllEvent() ([]events.EventsCore, error) {
 }
 
 // UpdateEvent implements events.EventsUseCaseInterface.
-func (eventUC *eventUsecase) UpdateEvent(id string, data events.EventsCore) (event events.EventsCore, err error) {
+func (eventUC *eventUsecase) UpdateEvent(id string, data events.EventsCore, image *multipart.FileHeader) (event events.EventsCore, err error) {
 	if id == "" {
 		return events.EventsCore{}, errors.New("error, Event ID is required")
 	}
@@ -90,7 +98,11 @@ func (eventUC *eventUsecase) UpdateEvent(id string, data events.EventsCore) (eve
 		return events.EventsCore{}, errors.New("error, Date must be in the format 'yyyy-mm-dd'")
 	}
 
-	updatedEvent, err := eventUC.eventRepository.UpdateEvent(id, data)
+	if image != nil && image.Size > 10*1024*1024 {
+        return events.EventsCore{}, errors.New("image file size should be less than 10 MB")
+    }
+
+	updatedEvent, err := eventUC.eventRepository.UpdateEvent(id, data, image)
     if err != nil {
         return events.EventsCore{}, err
     }

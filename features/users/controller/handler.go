@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"event_ticket/app/middlewares"
 	"event_ticket/features/users"
 	"fmt"
 	"net/http"
@@ -38,9 +39,11 @@ func (handler *UserController) Register(c echo.Context) error {
 	}
 
 	row, errusers := handler.userUsecase.Register(data)
+	fmt.Println("row controller : ", row)
 	if errusers != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error create user",
+			"error":   errusers.Error(),
 		})
 	}
 
@@ -69,6 +72,7 @@ func (handler *UserController) Login(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error login",
+			"error":   err.Error(),
 		})
 	}
 
@@ -80,6 +84,25 @@ func (handler *UserController) Login(c echo.Context) error {
 }
 
 func (handler *UserController) ReadAllUser(c echo.Context) error {
+	userId, role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+
 	data, err := handler.userUsecase.ReadAllUser()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -99,7 +122,7 @@ func (handler *UserController) ReadSpecificUser(c echo.Context) error {
 	idParams, err := uuid.Parse(idParamstr)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "failed parse UUID",
+			"message": "user not found",
 		})
 	}
 
@@ -142,7 +165,7 @@ func (handler *UserController) UpdateUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "Error updating user",
-			"error" : err.Error(),
+			"error":   err.Error(),
 		})
 	}
 

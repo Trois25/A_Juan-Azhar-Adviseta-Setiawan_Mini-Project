@@ -17,17 +17,21 @@ type userUsecase struct {
 // Register implements users.UserUseCaseInterface.
 func (uc *userUsecase) Register(data users.UserCore) (row int, err error) {
 	if data.Email == "" || data.Password == "" {
-		return 0, errors.New("error, email or password can't be empty")
-	}
+        return 0, errors.New("error, email or password can't be empty")
+    }
 
-	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-	match, _ := regexp.MatchString(emailRegex, data.Email)
-	if !match {
-		return 0, errors.New("error. email format not valid")
-	}
+    emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+    match, _ := regexp.MatchString(emailRegex, data.Email)
+    if !match {
+        return 0, errors.New("error. email format not valid")
+    }
 
-	erruser, _ := uc.userRepository.Register(data)
-	return erruser, nil
+    erruserdata, err := uc.userRepository.Register(data)
+    if err != nil {
+        return 0, err
+    }
+
+    return erruserdata, nil
 }
 
 // Login implements users.UserUseCaseInterface.
@@ -54,7 +58,6 @@ func (uc *userUsecase) Login(email string, username string, password string) (us
 	return users.UserCore{}, "", errors.New("Login Failed")
 }
 
-
 // ReadAllUser implements users.UserUseCaseInterface.
 func (userUC *userUsecase) ReadAllUser() ([]users.UserCore, error) {
 	users, err := userUC.userRepository.ReadAllUser()
@@ -76,7 +79,7 @@ func (userUC *userUsecase) ReadSpecificUser(id string) (user users.UserCore, err
 		return users.UserCore{}, err
 	}
 
-	return user,nil
+	return user, nil
 }
 
 // UpdateUser implements users.UserUseCaseInterface.
@@ -90,20 +93,29 @@ func (userUC *userUsecase) UpdateUser(id string, data users.UserCore) (user user
 	if !match {
 		return users.UserCore{}, errors.New("error. Phone number format not valid")
 	}
-	
-	fmt.Println("data logic : ",data)
-	updateUser, err := userUC.userRepository.UpdateUser(id,data)
-	if err != nil {
-        return users.UserCore{}, err
-    }
 
-	return updateUser,nil
+	fmt.Println("data logic : ", data)
+	updateUser, err := userUC.userRepository.UpdateUser(id, data)
+	if err != nil {
+		return users.UserCore{}, err
+	}
+
+	return updateUser, nil
 }
 
 // DeleteUser implements users.UserUseCaseInterface.
 func (userUC *userUsecase) DeleteUser(id string) (err error) {
 	if id == "" {
 		return errors.New("user data not found")
+	}
+
+	existingUser, err := userUC.userRepository.ReadSpecificUser(id)
+	if err != nil {
+		return errors.New("user not found")
+	}
+
+	if existingUser.ID == "" {
+		return errors.New("user not found")
 	}
 
 	errPurchase := userUC.userRepository.DeleteUser(id)
