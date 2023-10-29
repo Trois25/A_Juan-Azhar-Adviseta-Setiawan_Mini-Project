@@ -34,6 +34,7 @@ func (uc *userUsecase) Register(data users.UserCore) (row int, err error) {
     return erruserdata, nil
 }
 
+
 // Login implements users.UserUseCaseInterface.
 func (uc *userUsecase) Login(email string, username string, password string) (users.UserCore, string, error) {
 	if email == "" || password == "" {
