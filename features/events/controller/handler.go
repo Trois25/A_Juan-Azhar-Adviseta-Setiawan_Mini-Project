@@ -25,31 +25,44 @@ func (handler *eventController) PostEvent(c echo.Context) error {
 	userId, role := middlewares.ExtractTokenUserId(c)
 
 	if userId == "" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "error get userId",
 		})
 	}
 	if role == "" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "error get role",
 		})
 	}
 
 	if role != "admin" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "access denied",
 		})
 	}
 
-	input := new(EventRequest)
+	input := EventRequest{}
 	errBind := c.Bind(&input)
 	if errBind != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "error bind data",
 		})
 	}
 
+	image, err := c.FormFile("Poster_image")
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "No file uploaded",
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error uploading file",
+		})
+	}
+
 	data := events.EventsCore{
+		Poster_image:    input.Poster_image,
 		Title:           input.Title,
 		Body:            input.Body,
 		Ticket_quantity: input.Ticket_quantity,
@@ -58,15 +71,17 @@ func (handler *eventController) PostEvent(c echo.Context) error {
 		Date:            input.Date,
 	}
 
-	_, errevent := handler.eventUsecase.PostEvent(data)
+	_, errevent := handler.eventUsecase.PostEvent(data, image)
 	if errevent != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "error post event",
+			"error":   errevent.Error(),
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]any{
+	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success post event",
+		"data":    data,
 	})
 }
 
@@ -90,7 +105,7 @@ func (handler *eventController) ReadSpecificEvent(c echo.Context) error {
 	idParams, err := uuid.Parse(idParamstr)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "failed parse UUID",
+			"message": "event not found",
 		})
 	}
 
@@ -137,9 +152,22 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 		})
 	}
 
+	image, err := c.FormFile("Poster_image")
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "No file uploaded",
+			})
+		}
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error uploading file",
+		})
+	}
+
 	eventData := events.EventsCore{
 		ID:              idParams,
 		Title:           data.Title,
+		Poster_image:    data.Poster_image,
 		Body:            data.Body,
 		Ticket_quantity: data.Ticket_quantity,
 		Price:           data.Price,
@@ -147,7 +175,7 @@ func (handler *eventController) UpdateEvent(c echo.Context) error {
 		Date:            data.Date,
 	}
 
-	updatedEvent, err := handler.eventUsecase.UpdateEvent(idParams, eventData)
+	updatedEvent, err := handler.eventUsecase.UpdateEvent(idParams, eventData, image)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "Error updating event",

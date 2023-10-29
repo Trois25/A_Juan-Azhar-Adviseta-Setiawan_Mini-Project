@@ -20,7 +20,10 @@ func (purchaseUC *purchaseUsecase) CreatePurchase(data purchase.PurchaseCore) (r
 		return 0, errors.New("error, quantity must be a positive integer")
 	}
 
-	errPurchase, _ := purchaseUC.purchaseRepository.CreatePurchase(data)
+	errPurchase, err := purchaseUC.purchaseRepository.CreatePurchase(data)
+	if err != nil {
+		return 0, err // Tangani error yang diteruskan oleh repository
+	}
 	return errPurchase, nil
 }
 
@@ -84,7 +87,7 @@ func (purchaseUC *purchaseUsecase) UpdatePurchase(id string, data purchase.Purch
 		return purchase.PurchaseCore{}, err
 	}
 
-	if data.Payment_status == ""{
+	if data.Payment_status == "" {
 		return purchase.PurchaseCore{}, errors.New("data purchase can't empty")
 	}
 
@@ -106,7 +109,7 @@ func (purchaseUC *purchaseUsecase) UploadProof(id string, data purchase.Purchase
 	}
 
 	paymentProof := purchase.PurchaseCore{
-		Proof_image : data.Proof_image,
+		Proof_image: data.Proof_image,
 	}
 
 	// Dapatkan data pembelian yang ada terlebih dahulu
@@ -116,11 +119,11 @@ func (purchaseUC *purchaseUsecase) UploadProof(id string, data purchase.Purchase
 	}
 
 	if image != nil && image.Size > 10*1024*1024 {
-        return purchase.PurchaseCore{}, errors.New("image file size should be less than 10 MB")
-    }
+		return purchase.PurchaseCore{}, errors.New("image file size should be less than 10 MB")
+	}
 	existingPurchase.Proof_image = data.Proof_image
 
-	uploadProof, err := purchaseUC.purchaseRepository.UploadProof(id, paymentProof,image)
+	uploadProof, err := purchaseUC.purchaseRepository.UploadProof(id, paymentProof, image)
 	if err != nil {
 		return purchase.PurchaseCore{}, err
 	}

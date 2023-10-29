@@ -79,6 +79,21 @@ func (handler *roleController) ReadAllRole(c echo.Context) error {
 		"data":    data,
 	})
 }
+func (handler *roleController) ReadSpecificRole(c echo.Context) error {
+	idParams := c.Param("id")
+
+	data, err := handler.roleUsecase.ReadSpecificRole(idParams)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get specific role",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "get role",
+		"data":    data,
+	})
+}
 
 func (handler *roleController) DeleteRole(c echo.Context) error {
 
@@ -120,10 +135,5 @@ func (handler *roleController) DeleteRole(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]any{
 			"message": "success delete data",
 		})
-	// } else {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "access denied",
-	// 	})
-	// }
 
 }

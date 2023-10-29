@@ -46,6 +46,7 @@ func (handler *purchaseController) CreatePurchase(c echo.Context) error {
 		UserId:         input.UserId,
 		Quantity:       input.Quantity,
 		Payment_status: input.Payment_status,
+		
 	}
 
 	fmt.Println("---------------------------")
@@ -56,7 +57,7 @@ func (handler *purchaseController) CreatePurchase(c echo.Context) error {
 	fmt.Println("payment status : ", data.Payment_status)
 	fmt.Println("booking code : ", data.Booking_code)
 
-	row, err := handler.purchaseUsecase.CreatePurchase(data)
+	_, err := handler.purchaseUsecase.CreatePurchase(data)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "error create purchase",
@@ -66,7 +67,7 @@ func (handler *purchaseController) CreatePurchase(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success create purchase",
-		"row":     row,
+		"data" : data,
 	})
 }
 
@@ -193,7 +194,7 @@ func (handler *purchaseController) DeletePurchase(c echo.Context) error {
 	err := handler.purchaseUsecase.DeletePurchase(idParams)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"message": "Error deleting purchase data",
+			"message": "Error deleting purchase data : " + err.Error(),
 		})
 	}
 

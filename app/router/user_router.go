@@ -1,7 +1,7 @@
 package router
 
 import (
-	// m "event_ticket/app/middlewares"
+	m "event_ticket/app/middlewares"
 	"event_ticket/features/users/controller"
 	"event_ticket/features/users/database"
 	"event_ticket/features/users/usecase"
@@ -15,11 +15,11 @@ func InitUserRouter(db *gorm.DB, e *echo.Echo) {
 	userUsecase := usecase.New(userRepository) //data pada usecare berdaarkan repository
 	userController := controller.New(userUsecase)
 
-	e.GET("/users", userController.ReadAllUser)
-	e.GET("/user/:id", userController.ReadSpecificUser)
+	e.GET("/users", userController.ReadAllUser, m.JWTMiddleware())
+	e.GET("/user/:id", userController.ReadSpecificUser, m.JWTMiddleware())
 	e.POST("/user", userController.Register)
 	e.POST("/user/login", userController.Login)
-	e.PUT("/user/:id", userController.UpdateUser)
-	e.DELETE("/user/:id", userController.DeleteUser)
+	e.PUT("/user/:id", userController.UpdateUser, m.JWTMiddleware())
+	e.DELETE("/user/:id", userController.DeleteUser, m.JWTMiddleware())
 
 }

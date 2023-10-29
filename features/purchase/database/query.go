@@ -125,13 +125,37 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 	if UUIDerror != nil {
 		return 0, UUIDerror
 	}
+	
+	var user repository.Users
+	if err := purchaseRepo.db.Where("id = ?", data.UserId).First(&user).Error; err != nil {
+		return 0, err
+	}
 
 	var event repository.Events
 	if err := purchaseRepo.db.Where("id = ?", data.EventId).First(&event).Error; err != nil {
 		return 0, err
 	}
+	fmt.Println("eventID : ",data.EventId)
 
 	totalPrice := data.Quantity * int(event.Price)
+	totalTicket := event.Ticket_quantity - data.Quantity
+	if totalTicket <= 0 {
+		return 0, errors.New("ticket is out of stock")
+	}
+
+	if data.UserId != user.ID.String(){
+		return 0, errors.New("user is not found")
+	}
+
+	if data.EventId != event.ID.String(){
+		return 0, errors.New("event is not found")
+	}
+
+	// Lakukan pembaruan pada Event
+	errUpdateEvent := purchaseRepo.db.Model(&event).Update("ticket_quantity", totalTicket).Error
+	if errUpdateEvent != nil {
+		return 0, errUpdateEvent
+	}
 
 	eventID, parseErr := uuid.Parse(data.EventId)
 	if parseErr != nil {
@@ -165,6 +189,11 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 // DeletePurchase implements purchase.PurchaseDataInterface.
 func (purchaseRepo *purchaseRepository) DeletePurchase(id string) (err error) {
 	var checkId repository.Purchase
+
+	dataId := purchaseRepo.db.Where("id = ?", id).First(&checkId)
+	if dataId != nil {
+		return errors.New("purchase data not found")
+	}
 
 	errData := purchaseRepo.db.Where("id = ?", id).Delete(&checkId)
 	if errData != nil {

@@ -38,12 +38,23 @@ func (userRep *userRepository) Register(data users.UserCore) (row int, err error
 		RoleId:        data.RoleId,
 	}
 
-	erruser := userRep.db.Save(&input)
-	if erruser.Error != nil {
-		return 0, erruser.Error
-	}
-
-	return 1, nil
+	var checkEmail repository.Users
+    dbCheck := userRep.db.Where("email = ?", data.Email).First(&checkEmail)
+    if dbCheck.Error != nil {
+        // Jika tidak ada data yang ditemukan, maka email belum terdaftar
+        if errors.Is(dbCheck.Error, gorm.ErrRecordNotFound) {
+            erruser := userRep.db.Save(&input)
+            if erruser.Error != nil {
+                return 0, erruser.Error
+            }
+            return 1, nil
+        } else {
+            // Terjadi kesalahan dalam pencarian
+            return 0, dbCheck.Error
+        }
+    }
+    // Email sudah terdaftar
+    return 0, errors.New("email already registered")
 }
 
 // Login implements users.UserDataInterface.

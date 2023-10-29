@@ -45,6 +45,7 @@ type Roles struct {
 
 type Events struct {
 	ID              uuid.UUID `gorm:"type:varchar(50);primaryKey;not null" json:"id"`
+	Poster_image    string    `json:poster_image`
 	Title           string    `json:"title"`
 	Body            string    `json:"body"`
 	Ticket_quantity int       `json:"ticket_quantity"`

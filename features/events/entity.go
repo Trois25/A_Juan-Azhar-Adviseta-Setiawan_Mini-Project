@@ -1,9 +1,13 @@
 package events
 
-import "time"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type EventsCore struct {
 	ID              string    `json:"id"`
+	Poster_image    string    `json:"poster_image"`
 	Title           string    `json:"title"`
 	Body            string    `json:"body"`
 	Ticket_quantity int       `json:"ticket_quantity"`
@@ -15,17 +19,17 @@ type EventsCore struct {
 }
 
 type EventsDataInterface interface {
-	PostEvent(data EventsCore) (row int, err error)
+	PostEvent(data EventsCore, image *multipart.FileHeader) (row int, err error)
 	ReadAllEvent() ([]EventsCore, error)
 	ReadSpecificEvent(id string) (event EventsCore, err error)
-	UpdateEvent(id string, data EventsCore) (event EventsCore, err error)
+	UpdateEvent(id string, data EventsCore, image *multipart.FileHeader) (event EventsCore, err error)
 	DeleteEvent(id string) (err error)
 }
 
 type EventsUseCaseInterface interface {
-	PostEvent(data EventsCore) (row int, err error)
+	PostEvent(data EventsCore, image *multipart.FileHeader) (row int, err error)
 	ReadAllEvent() ([]EventsCore, error)
 	ReadSpecificEvent(id string) (event EventsCore, err error)
-	UpdateEvent(id string, data EventsCore) (event EventsCore, err error)
+	UpdateEvent(id string, data EventsCore, image *multipart.FileHeader) (event EventsCore, err error)
 	DeleteEvent(id string) (err error)
 }

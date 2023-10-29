@@ -4,6 +4,8 @@ import (
 	"errors"
 	"event_ticket/features/events"
 	"event_ticket/features/repository"
+	"event_ticket/features/storage"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -26,6 +28,7 @@ func (eventRepo *eventsRepository) ReadSpecificEvent(id string) (event events.Ev
 
 	eventCore := events.EventsCore{
 		ID:              eventData.ID.String(),
+		Poster_image:    eventData.Poster_image,
 		Title:           eventData.Title,
 		Body:            eventData.Body,
 		Date:            eventData.Date,
@@ -40,14 +43,24 @@ func (eventRepo *eventsRepository) ReadSpecificEvent(id string) (event events.Ev
 }
 
 // PostEvent implements events.EventsDataInterface.
-func (eventRepo *eventsRepository) PostEvent(data events.EventsCore) (row int, err error) {
+func (eventRepo *eventsRepository) PostEvent(data events.EventsCore, image *multipart.FileHeader) (row int, err error) {
 	newUUID, UUIDerr := uuid.NewRandom()
 	if UUIDerr != nil {
 		return 0, UUIDerr
 	}
 
+	imageURL, uploadErr := storage.UploadPoster(image)
+	if uploadErr != nil {
+		return 0, uploadErr
+	}
+
+	if uploadErr != nil {
+		return 0, uploadErr
+	}
+
 	var input = repository.Events{
 		ID:              newUUID,
+		Poster_image:    imageURL,
 		Title:           data.Title,
 		Body:            data.Body,
 		Date:            data.Date,
@@ -77,6 +90,7 @@ func (eventRepo *eventsRepository) ReadAllEvent() ([]events.EventsCore, error) {
 	for i, value := range dataEvents {
 		mapData[i] = events.EventsCore{
 			ID:              value.ID.String(),
+			Poster_image:    value.Poster_image,
 			Title:           value.Title,
 			Body:            value.Body,
 			Date:            value.Date,
@@ -91,7 +105,7 @@ func (eventRepo *eventsRepository) ReadAllEvent() ([]events.EventsCore, error) {
 }
 
 // UpdateEvent implements events.EventsDataInterface.
-func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore) (event events.EventsCore, err error) {
+func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore, image *multipart.FileHeader) (event events.EventsCore, err error) {
 	var eventData repository.Events
 	errData := eventRepo.db.Where("id = ?", id).First(&eventData).Error
 	if errData != nil {
@@ -106,7 +120,17 @@ func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore
 		return events.EventsCore{}, err
 	}
 
+	imageURL, uploadErr := storage.UploadPoster(image)
+	if uploadErr != nil {
+		return events.EventsCore{}, uploadErr
+	}
+
+	if uploadErr != nil {
+		return events.EventsCore{}, uploadErr
+	}
+
 	eventData.ID = uuidID
+	eventData.Poster_image = data.Poster_image
 	eventData.Title = data.Title
 	eventData.Body = data.Body
 	eventData.Date = data.Date
@@ -117,6 +141,7 @@ func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore
 
 	var update = repository.Events{
 		ID:              eventData.ID,
+		Poster_image:    imageURL,
 		Title:           eventData.Title,
 		Body:            eventData.Body,
 		Date:            eventData.Date,
@@ -129,9 +154,10 @@ func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore
 	if errData != nil {
 		return events.EventsCore{}, errSave.Error
 	}
-	
+
 	eventCore := events.EventsCore{
 		ID:              eventData.ID.String(),
+		Poster_image:    imageURL,
 		Title:           eventData.Title,
 		Body:            eventData.Body,
 		Date:            eventData.Date,
@@ -142,13 +168,18 @@ func (eventRepo *eventsRepository) UpdateEvent(id string, data events.EventsCore
 		UpdatedAt:       eventData.UpdatedAt,
 	}
 
-	return eventCore,nil
+	return eventCore, nil
 
 }
 
 // DeleteEvents implements events.EventsDataInterface.
 func (eventRepo *eventsRepository) DeleteEvent(id string) (err error) {
 	var checkId repository.Events
+
+	dataId := eventRepo.db.Where("id = ?", id).First(&checkId)
+	if dataId != nil {
+		return errors.New("event not found")
+	}
 
 	errData := eventRepo.db.Where("id = ?", id).Delete(&checkId)
 	if errData != nil {
