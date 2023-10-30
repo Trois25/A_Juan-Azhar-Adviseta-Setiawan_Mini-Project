@@ -18,4 +18,4 @@ RUN go build -o /tugas
 #define port aplikasi
 EXPOSE 8000
 
-CMD ["/mini-project"]
+CMD ["/app/tugas"]
