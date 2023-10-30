@@ -18,6 +18,8 @@ type purchaseRepository struct {
 
 // UploadProof implements purchase.PurchaseDataInterface.
 func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.PurchaseCore, image *multipart.FileHeader) (purchases purchase.PurchaseCore, err error) {
+
+	//find firs purchase with input id
 	var purchaseData repository.Purchase
 	errData := purchaseRepo.db.Where("id = ?", id).First(&purchaseData).Error
 	if errData != nil {
@@ -27,7 +29,7 @@ func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.Pur
 		return purchase.PurchaseCore{}, errData
 	}
 
-	// Pastikan UserId yang sesuai dengan referensi ke pengguna ada
+	// check validation userId
 	var user repository.Users
 	errUser := purchaseRepo.db.Where("id = ?", purchaseData.UserId).First(&user).Error
 	if errUser != nil {
@@ -39,6 +41,7 @@ func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.Pur
 		return purchase.PurchaseCore{}, err
 	}
 
+	//upload image
 	imageURL, uploadErr := storage.UploadProofOfPayment(image)
 	if uploadErr != nil {
 		return purchase.PurchaseCore{}, uploadErr
@@ -48,10 +51,12 @@ func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.Pur
 		return purchase.PurchaseCore{}, uploadErr
 	}
 
+	//update data
 	purchaseData.ID = uuidID
 	purchaseData.Proof_image = imageURL
 	purchaseData.UpdatedAt = data.UpdatedAt
 
+	//mapping for input to purchase db
 	var update = repository.Purchase{
 		ID:             purchaseData.ID,
 		Payment_status: purchaseData.Payment_status,
@@ -65,11 +70,13 @@ func (purchaseRepo *purchaseRepository) UploadProof(id string, data purchase.Pur
 		UpdatedAt:      purchaseData.UpdatedAt,
 	}
 
+	//save to purchase db
 	errSave := purchaseRepo.db.Save(&update)
 	if errSave != nil {
 		return purchase.PurchaseCore{}, errSave.Error
 	}
 
+	//mapping to core for data output
 	purchaseCore := purchase.PurchaseCore{
 		ID:             purchaseData.ID.String(),
 		UserId:         purchaseData.UserId.String(),
@@ -116,6 +123,8 @@ func (purchaseRepo *purchaseRepository) ReadSpecificPurchase(id string) (purchas
 // CreatePurchase implements purchase.PurchaseDataInterface.
 func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCore) (row int, err error) {
 	fmt.Println("paling atas")
+
+	//generate UUID
 	newUUID, UUIDerr := uuid.NewRandom()
 	if UUIDerr != nil {
 		return 0, UUIDerr
@@ -126,22 +135,25 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 		return 0, UUIDerror
 	}
 	
+	//find first user with input ID
 	var user repository.Users
 	if err := purchaseRepo.db.Where("id = ?", data.UserId).First(&user).Error; err != nil {
 		return 0, err
 	}
 
+	//find first events with input ID
 	var event repository.Events
 	if err := purchaseRepo.db.Where("id = ?", data.EventId).First(&event).Error; err != nil {
 		return 0, err
 	}
 	fmt.Println("eventID : ",data.EventId)
 
-	totalPrice := data.Quantity * int(event.Price)
+	//check ticket and total price
 	totalTicket := event.Ticket_quantity - data.Quantity
 	if totalTicket <= 0 {
 		return 0, errors.New("ticket is out of stock")
 	}
+	totalPrice := data.Quantity * int(event.Price)
 
 	if data.UserId != user.ID.String(){
 		return 0, errors.New("user is not found")
@@ -151,12 +163,13 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 		return 0, errors.New("event is not found")
 	}
 
-	// Lakukan pembaruan pada Event
+	// update event
 	errUpdateEvent := purchaseRepo.db.Model(&event).Update("ticket_quantity", totalTicket).Error
 	if errUpdateEvent != nil {
 		return 0, errUpdateEvent
 	}
 
+	//parse ID from string back to UUID
 	eventID, parseErr := uuid.Parse(data.EventId)
 	if parseErr != nil {
 		return 0, fmt.Errorf("error parsing EventId: %v", parseErr)
@@ -168,6 +181,7 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 	}
 	fmt.Println(eventID, userID)
 
+	//mapping for input to db
 	var input = repository.Purchase{
 		ID:             newUUID,
 		EventId:        eventID,
@@ -178,6 +192,7 @@ func (purchaseRepo *purchaseRepository) CreatePurchase(data purchase.PurchaseCor
 		Payment_status: data.Payment_status,
 	}
 
+	//save purchase data
 	errData := purchaseRepo.db.Save(&input)
 	if errData != nil {
 		return 0, errData.Error
@@ -237,6 +252,8 @@ func (purchaseRepo *purchaseRepository) ReadAllPurchase() ([]purchase.PurchaseCo
 // UpdatePurchase implements purchase.PurchaseDataInterface.
 func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.PurchaseCore) (purchases purchase.PurchaseCore, err error) {
 	var purchaseData repository.Purchase
+
+	//find specific purchase data
 	errData := purchaseRepo.db.Where("id = ?", id).First(&purchaseData).Error
 	if errData != nil {
 		if errors.Is(errData, gorm.ErrRecordNotFound) {
@@ -245,7 +262,7 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 		return purchase.PurchaseCore{}, errData
 	}
 
-	// Pastikan UserId yang sesuai dengan referensi ke pengguna ada
+	// check userId
 	var user repository.Users
 	errUser := purchaseRepo.db.Where("id = ?", purchaseData.UserId).First(&user).Error
 	if errUser != nil {
@@ -257,14 +274,17 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 		return purchase.PurchaseCore{}, err
 	}
 
+	//Edit data
 	purchaseData.ID = uuidID
 	purchaseData.Payment_status = data.Payment_status
 	purchaseData.UpdatedAt = data.UpdatedAt
 
+	//check image
 	if data.Proof_image != "" {
 		purchaseData.Proof_image = data.Proof_image
 	}
 
+	//map for insert to db
 	var update = repository.Purchase{
 		ID:             purchaseData.ID,
 		Payment_status: purchaseData.Payment_status,
@@ -283,6 +303,7 @@ func (purchaseRepo *purchaseRepository) UpdatePurchase(id string, data purchase.
 		return purchase.PurchaseCore{}, errSave.Error
 	}
 
+	//map data to output
 	purchaseCore := purchase.PurchaseCore{
 		ID:             purchaseData.ID.String(),
 		UserId:         purchaseData.UserId.String(),
