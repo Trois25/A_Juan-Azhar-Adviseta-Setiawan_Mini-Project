@@ -1,4 +1,4 @@
-name: Deploy API to Server
+name: Deploy API x-tiev
 
 #akan melkaukan deploy ketika push ke branch main
 on:
