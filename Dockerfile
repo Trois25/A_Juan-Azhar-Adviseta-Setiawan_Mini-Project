@@ -16,6 +16,6 @@ COPY . .
 RUN go build -o /tugas
 
 #define port aplikasi
-EXPOSE 3000
+EXPOSE 8000
 
 CMD ["/mini-project"]
