@@ -18,12 +18,12 @@ type AppConfig struct {
 
 func loadEnv() *AppConfig {
 	var res = new(AppConfig)
-	err := godotenv.Load(".env")
+	godotenv.Load(".env")
 
-	if err != nil {
-		logrus.Error("Config : Cannot load config file,", err.Error())
-		return nil
-	}
+	// if err != nil {
+	// 	logrus.Error("Config : Cannot load config file,", err.Error())
+	// 	return nil
+	// }
 
 	if secretKey, found := os.LookupEnv("JWT_SECRET_KEY"); found {
 		res.JWT_SECRET_KEY = secretKey
