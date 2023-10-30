@@ -12,10 +12,10 @@ RUN go mod download
 #copy semuanya kedalam directory
 COPY . .
 
-#build aplikasi dan define dimana output itu berada, untuk casi ini didalam tugas
+#build aplikasi dan define dimana output itu berada, untuk case ini didalam tugas
 RUN go build -o /tugas
 
 #define port aplikasi
 EXPOSE 8000
 
-CMD ["/app/tugas"]
+CMD ["/tugas"]
