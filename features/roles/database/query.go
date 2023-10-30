@@ -12,6 +12,25 @@ type roleRepository struct {
 	db *gorm.DB
 }
 
+// ReadSpecificUser implements roles.RoleDataInterface.
+func (roleRepo *roleRepository) ReadSpecificRole(id string) (role roles.RoleCore, err error) {
+	var roleData repository.Roles
+	errData := roleRepo.db.Where("id = ?", id).First(&roleData).Error
+	if errData != nil {
+		if errors.Is(errData, gorm.ErrRecordNotFound) {
+			return roles.RoleCore{}, errors.New("user not found")
+		}
+		return roles.RoleCore{}, errData
+	}
+
+	roleCore := roles.RoleCore{
+		ID:            roleData.ID,
+		Role_name: roleData.Role_name,
+	}
+
+	return roleCore, nil
+}
+
 // CreateRole implements roles.RoleDataInterface.
 func (roleRepo *roleRepository) CreateRole(data roles.RoleCore) (err error) {
 	var input = repository.Roles{
@@ -19,7 +38,7 @@ func (roleRepo *roleRepository) CreateRole(data roles.RoleCore) (err error) {
 	}
 
 	errData := roleRepo.db.Save(&input)
-	if errData != nil{
+	if errData != nil {
 		return errData.Error
 	}
 
@@ -31,7 +50,7 @@ func (roleRepo *roleRepository) DeleteRole(id uint64) (err error) {
 	var checkId repository.Roles
 
 	errData := roleRepo.db.Where("id = ?", id).Delete(&checkId)
-	if errData != nil{
+	if errData != nil {
 		return errData.Error
 	}
 
@@ -46,15 +65,15 @@ func (roleRepo *roleRepository) DeleteRole(id uint64) (err error) {
 func (roleRepo *roleRepository) ReadAllRole() ([]roles.RoleCore, error) {
 	var dataRoles []repository.Roles
 
-	errData := roleRepo.db.Find(&dataRoles)
-	if errData != nil{
-		return nil,errData.Error
+	errData := roleRepo.db.Find(&dataRoles).Error
+	if errData != nil {
+		return nil, errData
 	}
 
-	mapData := make([]roles.RoleCore,len(dataRoles))
+	mapData := make([]roles.RoleCore, len(dataRoles))
 	for i, value := range dataRoles {
 		mapData[i] = roles.RoleCore{
-			ID: value.ID,
+			ID:        value.ID,
 			Role_name: value.Role_name,
 			CreatedAt: value.CreatedAt,
 			UpdatedAt: value.UpdatedAt,

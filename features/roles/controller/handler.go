@@ -1,6 +1,8 @@
 package controller
 
 import (
+	// "event_ticket/app/middlewares"
+	// "event_ticket/app/middlewares"
 	"event_ticket/app/middlewares"
 	"event_ticket/features/roles"
 	"net/http"
@@ -20,6 +22,25 @@ func New(roleUC roles.RoleUseCaseInterface) *roleController {
 }
 
 func (handler *roleController) CreateRole(c echo.Context) error {
+	// userId,role := middlewares.ExtractTokenUserId(c)
+
+	// if userId == "" {
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "error get userId",
+	// 	})
+	// }
+	// if role  == ""{
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "error get role",
+	// 	})
+	// }
+
+	// if role != "admin"{
+	// 	return c.JSON(http.StatusBadRequest, map[string]any{
+	// 		"message": "access denied",
+	// 	})
+	// }
+	
 	input := new(RoleRequest)
 	errBind := c.Bind(&input)
 	if errBind != nil {
@@ -32,8 +53,8 @@ func (handler *roleController) CreateRole(c echo.Context) error {
 		Role_name: input.Role_name,
 	}
 
-	errusers := handler.roleUsecase.CreateRole(data)
-	if errusers != nil {
+	errrole := handler.roleUsecase.CreateRole(data)
+	if errrole != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error insert data",
 		})
@@ -45,19 +66,6 @@ func (handler *roleController) CreateRole(c echo.Context) error {
 }
 
 func (handler *roleController) ReadAllRole(c echo.Context) error {
-
-	role, userId := middlewares.ExtractTokenUserId(c)
-	if userId == "" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "error get userId",
-		})
-	}
-
-	if role != "admin" {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "access denied",
-		})
-	}
 
 	data, err := handler.roleUsecase.ReadAllRole()
 	if err != nil {
@@ -71,13 +79,40 @@ func (handler *roleController) ReadAllRole(c echo.Context) error {
 		"data":    data,
 	})
 }
+func (handler *roleController) ReadSpecificRole(c echo.Context) error {
+	idParams := c.Param("id")
+
+	data, err := handler.roleUsecase.ReadSpecificRole(idParams)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get specific role",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "get role",
+		"data":    data,
+	})
+}
 
 func (handler *roleController) DeleteRole(c echo.Context) error {
 
-	role, userId := middlewares.ExtractTokenUserId(c)
+	userId,role := middlewares.ExtractTokenUserId(c)
+
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
 		})
 	}
 
@@ -88,7 +123,7 @@ func (handler *roleController) DeleteRole(c echo.Context) error {
 		})
 	}
 
-	if userId == idParams || role == "admin" {
+	// if userId == idParams{
 		number, _ := strconv.ParseUint(string(idParams), 10, 64)
 		err := handler.roleUsecase.DeleteRole(number)
 		if err != nil {
@@ -100,10 +135,5 @@ func (handler *roleController) DeleteRole(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]any{
 			"message": "success delete data",
 		})
-	} else {
-		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "access denied",
-		})
-	}
 
 }

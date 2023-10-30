@@ -12,11 +12,13 @@ type RoleCore struct {
 type RoleDataInterface interface {
 	CreateRole(data RoleCore) (err error)
 	ReadAllRole() ([]RoleCore, error)
+	ReadSpecificRole(id string) (role RoleCore, err error)
 	DeleteRole(id uint64) (err error)
 }
 
 type RoleUseCaseInterface interface {
 	CreateRole(data RoleCore) (err error)
 	ReadAllRole() ([]RoleCore, error)
+	ReadSpecificRole(id string) (role RoleCore, err error)
 	DeleteRole(id uint64) (err error)
 }
