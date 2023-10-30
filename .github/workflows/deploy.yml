@@ -51,8 +51,8 @@ jobs:
           key: ${{ secrets.KEY }} # id_ecdsa local
           port: ${{ secrets.PORT }} #port
           script: |
-            docker stop backend-api
-            docker rm backend-api
-            docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
-            docker run -d -p 8080:8080 -e GOOGLE_CLOUD_CREDENTIALS_PATH=${{ secrets.GOOGLE_CLOUD_CREDENTIALS_PATH }} -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e SERVERPORT=${{ secrets.SERVERPORT }} -e DBUSER=${{ secrets.DBUSER }} -e DBPASS=${{ secrets.DBPASS }} -e DBHOST=${{ secrets.DBHOST }} -e DBPORT=${{ secrets.DBPORT }} -e DBNAME=${{ secrets.DBNAME }} --name restapi ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
+            sudo docker stop backend-api
+            sudo docker rm backend-api
+            sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
+            sudo docker run -d -p 8080:8080 -e GOOGLE_CLOUD_CREDENTIALS_PATH=${{ secrets.GOOGLE_CLOUD_CREDENTIALS_PATH }} -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e SERVERPORT=${{ secrets.SERVERPORT }} -e DBUSER=${{ secrets.DBUSER }} -e DBPASS=${{ secrets.DBPASS }} -e DBHOST=${{ secrets.DBHOST }} -e DBPORT=${{ secrets.DBPORT }} -e DBNAME=${{ secrets.DBNAME }} --name restapi ${{ secrets.DOCKERHUB_USERNAME }}/backend_ci-cd:latest
