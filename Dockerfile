@@ -16,6 +16,6 @@ COPY . .
 RUN go build -o /tugas
 
 #define port aplikasi
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["/tugas"]
