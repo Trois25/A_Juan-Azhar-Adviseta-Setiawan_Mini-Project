@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -25,11 +24,6 @@ func (controller *AnimeRecomendationController) GetAnimeRecomendation(c echo.Con
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
-	
 	answer, err := controller.usecase.AnimeRecomendation(request, os.Getenv("OPEN_API_KEY"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
