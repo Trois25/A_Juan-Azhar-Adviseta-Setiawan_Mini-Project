@@ -3,7 +3,6 @@ package controller
 import (
 	"event_ticket/features/chat-AI/dto"
 	"event_ticket/features/chat-AI/usecase"
-	"log"
 	"net/http"
 	"os"
 
