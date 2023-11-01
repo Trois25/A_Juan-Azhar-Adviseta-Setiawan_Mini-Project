@@ -29,6 +29,7 @@ func (controller *AnimeRecomendationController) GetAnimeRecomendation(c echo.Con
 	// if err != nil {
 	// 	log.Fatal("Error loading .env file")
 	// }
+	
 	answer, err := controller.usecase.AnimeRecomendation(request, os.Getenv("OPEN_API_KEY"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
