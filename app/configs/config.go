@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,7 +38,7 @@ func InitConfig() *AppConfig {
 func loadConfig() *AppConfig {
 	var res = new(AppConfig)
 
-	godotenv.Load(".env")
+	// godotenv.Load(".env")
 
 	// if err != nil {
 	// 	logrus.Error("Config : Cannot load config file,", err.Error())
