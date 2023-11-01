@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -25,7 +25,7 @@ func (controller *AnimeRecomendationController) GetAnimeRecomendation(c echo.Con
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	godotenv.Load()
+	// err := godotenv.Load()
 	// if err != nil {
 	// 	log.Fatal("Error loading .env file")
 	// }
