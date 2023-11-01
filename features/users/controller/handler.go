@@ -107,6 +107,7 @@ func (handler *UserController) ReadAllUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
 			"message": "error get all user",
+			"error" : err.Error(),
 		})
 	}
 

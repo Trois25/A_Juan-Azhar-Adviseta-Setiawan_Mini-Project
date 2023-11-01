@@ -72,6 +72,25 @@ func (handler *purchaseController) CreatePurchase(c echo.Context) error {
 }
 
 func (handler *purchaseController) ReadAllPurchase(c echo.Context) error {
+	userId, role := middlewares.ExtractTokenUserId(c)
+
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
+	
 	data, err := handler.purchaseUsecase.ReadAllPurchase()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
