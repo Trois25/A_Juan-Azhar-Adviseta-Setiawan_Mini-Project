@@ -22,24 +22,24 @@ func New(roleUC roles.RoleUseCaseInterface) *roleController {
 }
 
 func (handler *roleController) CreateRole(c echo.Context) error {
-	// userId,role := middlewares.ExtractTokenUserId(c)
+	userId,role := middlewares.ExtractTokenUserId(c)
 
-	// if userId == "" {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "error get userId",
-	// 	})
-	// }
-	// if role  == ""{
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "error get role",
-	// 	})
-	// }
+	if userId == "" {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get userId",
+		})
+	}
+	if role  == ""{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "error get role",
+		})
+	}
 
-	// if role != "admin"{
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"message": "access denied",
-	// 	})
-	// }
+	if role != "admin"{
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "access denied",
+		})
+	}
 	
 	input := new(RoleRequest)
 	errBind := c.Bind(&input)
