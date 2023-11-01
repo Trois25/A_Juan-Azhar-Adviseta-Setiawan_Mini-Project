@@ -25,10 +25,10 @@ func (controller *AnimeRecomendationController) GetAnimeRecomendation(c echo.Con
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 	answer, err := controller.usecase.AnimeRecomendation(request, os.Getenv("OPEN_API_KEY"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
